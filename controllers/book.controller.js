@@ -1,11 +1,28 @@
 const booksTable = require("../models/book.model.js");
 const db = require("../db/index.js");
-const { eq } = require("drizzle-orm");
+const { eq, ilike, sql } = require("drizzle-orm");
 
 
 exports.getAllBooks = async function (req, res) {
-    console.log("Fetching all books", db);
+    // console.log("Fetching all books", db);
+    const search = req.query.search;
+    console.log("Search query:", { search });
     try {
+
+        if (search) {
+            const books = await db.select()
+                .from(booksTable)
+                .where(sql`to_tsvector('english', ${booksTable.title}) @@ to_tsquery('english', ${search})`);
+            return res
+                .status(200)
+                .json(
+                    {
+                        message: "Books retrieved successfully",
+                        data: books
+                    }
+                );
+        }
+
         console.log("Fetching all books");
         const books = await db.select().from(booksTable);
         return res
@@ -121,7 +138,7 @@ exports.updateBook = async function (req, res) {
     const { title, description, authorId } = req.body;
 
     console.log(title, description, authorId);
-    
+
 
     if (!title || title === "" || !authorId || authorId === "") {
         return res

@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const bookRoutes = require('./routes/book.routes.js');
+const authorRoutes = require('./routes/author.routes.js');
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/books', bookRoutes);
+app.use('/api/authors', authorRoutes);
 
 const PORT = process.env.PORT || 3000;
 
