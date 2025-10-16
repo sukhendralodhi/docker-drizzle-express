@@ -1,14 +1,15 @@
 const dotenv = require("dotenv");
-dotenv.config();
 const { defineConfig } = require("drizzle-kit");
 
-const config = defineConfig({
-    dialect: "postgresql",
-    output: "./drizzle",
-    schema: "./models/index.js",
-    dbCredentials: {
-        url: process.env.DATABASE_URL
-    }
-});
+dotenv.config();
 
-module.exports = config;
+module.exports = defineConfig({
+  dialect: "postgresql",
+  schema: "./models/index.js", // Path to your Drizzle schema definitions
+  out: "./drizzle",             // Folder for generated SQL files
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+  verbose: true,
+  strict: true,
+});
