@@ -1,6 +1,7 @@
 const { eq } = require("drizzle-orm");
 const db = require("../db/index.js");
 const authorsTable = require("../models/author.model.js");
+const booksTable = require("../models/book.model.js");
 
 exports.getAllAuthors = async function (req, res) {
     console.log("Fetching all authors");
@@ -44,7 +45,7 @@ exports.createAuthor = async function (req, res) {
     const { firstName, lastName, email } = req.body;
     console.log("Creating author with data:", req.body);
     try {
-        if(!firstName || firstName.trim() === "" || !email || email.trim() === "") {
+        if (!firstName || firstName.trim() === "" || !email || email.trim() === "") {
             return res.status(400).json({
                 error: "First name and email are required"
             });
@@ -57,7 +58,7 @@ exports.createAuthor = async function (req, res) {
                 email: email.trim()
             }
         ).returning(
-            {id: authorsTable.id}
+            { id: authorsTable.id }
         );
 
         return res.status(201).json({
@@ -75,6 +76,36 @@ exports.createAuthor = async function (req, res) {
     //     message: "Author created successfully",
     //     data: req.body
     // });
+}
+
+exports.getAllBooksOfOther = async (req, res) => {
+    try {
+        const authorId = req.params.id;
+
+        if(!authorId) {
+            return res.status(400).json(
+                {
+                    message: "Author id is required"
+                }
+            );
+        }
+
+        const books = await db.select().from(booksTable).where(eq(
+            booksTable.authorId, req.params.id
+        ));
+        
+        return res.json(
+            {
+                message: "Books fetched of that author",
+                data: books
+            }
+        )
+    } catch (error) {
+        console.error("Error getting book by author id:", error);
+        return res.status(500).json({
+            error: "An error occurred while creating the author"
+        });
+    }
 }
 
 exports.deleteAuthor = async function (req, res) {
